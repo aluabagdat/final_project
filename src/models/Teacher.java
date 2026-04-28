@@ -22,7 +22,6 @@ public class Teacher extends Employee implements Researcher {
         this.rating = 0;
     }
 
-    // Getters
     public TeacherTitle getTitle() { return title; }
     public List<Course> getCourses() { return courses; }
     public double getRating() { return rating; }
@@ -42,7 +41,6 @@ public class Teacher extends Employee implements Researcher {
         courses.add(c);
     }
 
-    // Researcher interface methods
     @Override
     public int getHIndex() {
         int h = 0;

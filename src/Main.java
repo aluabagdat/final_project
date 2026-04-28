@@ -11,10 +11,10 @@ public class Main {
         Teacher teacher = new Teacher("2", "Assem", "Mukhtarkyzy", "assemmukhtarkyzy@kbtu.kz", "assem", "1234", Teacher.TeacherTitle.PROFESSOR);
         teacher.displayMenu();
 
-        Student student = new Student("3", "Valeriya", "Demchenko", "valeriyademchenko@uni.kz", "valeriya", "1234", Student.StudyYear.SECOND, "CS");
+        Student student = new Student("3", "Valeriya", "Demchenko", "valeriyademchenko@kbtu.kz", "valeriya", "1234", Student.StudyYear.SECOND, "IS");
         student.displayMenu();
 
-        Manager manager = new Manager("4", "Arsen", "Akhmetolla", "arsen@uni.kz", "arsen", "1234", Manager.ManagerType.OR);
+        Manager manager = new Manager("4", "Arsen", "Akhmetolla", "arsenakhmetolla@kbtu.kz", "arsen", "1234", Manager.ManagerType.OR);
         manager.displayMenu();
 
         Course course = new Course("OOP", "IS", 2, 5);

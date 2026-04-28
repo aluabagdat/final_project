@@ -32,7 +32,6 @@ public class Course implements Serializable {
     public int getYear() { return year; }
     public int getCredits() { return credits; }
 
-    // Add methods
     public void addInstructor(Teacher t) {
         instructors.add(t);
         System.out.println("Teacher " + t.getFirstName() + " added to " + name);
