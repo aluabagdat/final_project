@@ -3,7 +3,9 @@ package models;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
-
+import java.util.Scanner;
+import java.util.List;
+import system.UniversitySystem;
 public class Manager extends Employee {
 
     public enum ManagerType { OR, DEPARTMENT, DEAN_OFFICE }
@@ -102,15 +104,82 @@ public class Manager extends Employee {
 
     @Override
     public void displayMenu() {
-        System.out.println("=== MANAGER MENU ===");
-        System.out.println("1. Approve registration");
-        System.out.println("2. Assign teacher to course");
-        System.out.println("3. Create report");
-        System.out.println("4. Manage news");
-        System.out.println("5. View students by GPA");
-        System.out.println("6. Search students (regex)");
-        System.out.println("7. View schedule");
-        System.out.println("0. Exit");
+        Scanner scanner = new Scanner(System.in);
+        UniversitySystem sys = UniversitySystem.getInstance();
+        int choice = -1;
+
+        while (choice != 0) {
+            System.out.println("\n=== MANAGER MENU ===");
+            System.out.println("1. View all courses");
+            System.out.println("2. Create report");
+            System.out.println("3. View students by GPA");
+            System.out.println("4. Search students");
+            System.out.println("5. View schedule");
+            System.out.println("6. Manage news");
+            System.out.println("0. Exit");
+            System.out.print("Choose: ");
+
+            try {
+                choice = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    List<Course> courses = sys.getCourses();
+                    if (courses.isEmpty()) {
+                        System.out.println("No courses.");
+                    } else {
+                        courses.forEach(c -> System.out.println("  - " + c));
+                    }
+                    break;
+                case 2:
+                    createReport(sys.getCourses());
+                    break;
+                case 3:
+                    viewStudentsSortedByGPA(sys.getStudents());
+                    break;
+                case 4:
+                    System.out.print("Enter search pattern (regex): ");
+                    String regex = scanner.nextLine().trim();
+                    searchStudents(sys.getStudents(), regex);
+                    break;
+                case 5:
+                    List<Course> all = sys.getCourses();
+                    if (all.isEmpty()) {
+                        System.out.println("No courses.");
+                        break;
+                    }
+                    System.out.println("Select course:");
+                    for (int i = 0; i < all.size(); i++) {
+                        System.out.println("  " + (i + 1) + ". " + all.get(i).getName());
+                    }
+                    System.out.print("Choose: ");
+                    try {
+                        int idx = Integer.parseInt(scanner.nextLine().trim()) - 1;
+                        if (idx >= 0 && idx < all.size()) {
+                            viewSchedule(all.get(idx));
+                        } else {
+                            System.out.println("Invalid selection.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input.");
+                    }
+                    break;
+                case 6:
+                    System.out.print("Enter news text: ");
+                    String news = scanner.nextLine().trim();
+                    manageNews(news);
+                    break;
+                case 0:
+                    System.out.println("Goodbye, " + getFirstName() + "!");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
     }
 
     @Override

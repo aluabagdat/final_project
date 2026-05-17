@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.regex.*;
 import exceptions.MaxCreditsException;
 import exceptions.MaxFailException;
+import java.util.Scanner;
+import java.util.List;
 
 public class Student extends User {
 
@@ -136,16 +138,73 @@ public class Student extends User {
     }
 
     @Override
-    public void displayMenu() {
-        System.out.println("=== STUDENT MENU ===");
-        System.out.println("1. View courses");
-        System.out.println("2. Register for course");
-        System.out.println("3. Drop course");
-        System.out.println("4. View transcript");
-        System.out.println("5. Rate teacher");
-        System.out.println("6. View attendance");
+public void displayMenu() {
+    Scanner scanner = new Scanner(System.in);
+    int choice = -1;
+
+    while (choice != 0) {
+        System.out.println("\n=== STUDENT MENU ===");
+        System.out.println("1. View registered courses");
+        System.out.println("2. View transcript");
+        System.out.println("3. Rate teacher");
+        System.out.println("4. View attendance");
         System.out.println("0. Exit");
+        System.out.print("Choose: ");
+
+        try {
+            choice = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a number.");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                if (registeredCourses.isEmpty()) {
+                    System.out.println("You have no registered courses.");
+                } else {
+                    System.out.println("Your courses:");
+                    for (Course c : registeredCourses) {
+                        System.out.println("  - " + c);
+                    }
+                }
+                break;
+            case 2:
+                viewTranscript();
+                break;
+            case 3:
+                System.out.print("Enter teacher name to rate: ");
+                String name = scanner.nextLine().trim();
+                System.out.print("Enter rating (1-5): ");
+                try {
+                    int rating = Integer.parseInt(scanner.nextLine().trim());
+                    // найти преподавателя по имени среди курсов
+                    boolean found = false;
+                    for (Course c : registeredCourses) {
+                        for (Teacher t : c.getInstructors()) {
+                            if ((t.getFirstName() + " " + t.getLastName())
+                                    .equalsIgnoreCase(name)) {
+                                rateTeacher(t, rating);
+                                found = true;
+                            }
+                        }
+                    }
+                    if (!found) System.out.println("Teacher not found in your courses.");
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid rating.");
+                }
+                break;
+            case 4:
+                viewAttendance();
+                break;
+            case 0:
+                System.out.println("Goodbye, " + getFirstName() + "!");
+                break;
+            default:
+                System.out.println("Invalid option.");
+        }
     }
+}
 
     @Override
     public String toString() {

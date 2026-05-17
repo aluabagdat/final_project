@@ -2,6 +2,8 @@ package models;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Scanner;
+import java.util.List;
 
 public class Teacher extends Employee implements Researcher {
 
@@ -124,17 +126,90 @@ public class Teacher extends Employee implements Researcher {
     @Override public List<ResearchProject> getProjects() { return projects; }
 
     @Override
-    public void displayMenu() {
-        System.out.println("=== TEACHER MENU ===");
+public void displayMenu() {
+    Scanner scanner = new Scanner(System.in);
+    int choice = -1;
+
+    while (choice != 0) {
+        System.out.println("\n=== TEACHER MENU ===");
         System.out.println("1. View my courses");
-        System.out.println("2. Put mark");
-        System.out.println("3. View students");
-        System.out.println("4. Generate marks report");
-        System.out.println("5. Mark attendance");
-        System.out.println("6. View research papers");
-        System.out.println("7. Create lesson");
+        System.out.println("2. View students in course");
+        System.out.println("3. Generate marks report");
+        System.out.println("4. View research papers");
         System.out.println("0. Exit");
+        System.out.print("Choose: ");
+
+        try {
+            choice = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a number.");
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                if (courses.isEmpty()) {
+                    System.out.println("You have no courses.");
+                } else {
+                    System.out.println("Your courses:");
+                    for (Course c : courses) {
+                        System.out.println("  - " + c);
+                    }
+                }
+                break;
+            case 2:
+                if (courses.isEmpty()) {
+                    System.out.println("You have no courses.");
+                    break;
+                }
+                System.out.println("Select course:");
+                for (int i = 0; i < courses.size(); i++) {
+                    System.out.println("  " + (i + 1) + ". " + courses.get(i).getName());
+                }
+                System.out.print("Choose: ");
+                try {
+                    int idx = Integer.parseInt(scanner.nextLine().trim()) - 1;
+                    if (idx >= 0 && idx < courses.size()) {
+                        viewStudents(courses.get(idx));
+                    } else {
+                        System.out.println("Invalid selection.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input.");
+                }
+                break;
+            case 3:
+                if (courses.isEmpty()) {
+                    System.out.println("You have no courses.");
+                    break;
+                }
+                System.out.println("Select course for report:");
+                for (int i = 0; i < courses.size(); i++) {
+                    System.out.println("  " + (i + 1) + ". " + courses.get(i).getName());
+                }
+                System.out.print("Choose: ");
+                try {
+                    int idx = Integer.parseInt(scanner.nextLine().trim()) - 1;
+                    if (idx >= 0 && idx < courses.size()) {
+                        generateMarksReport(courses.get(idx));
+                    } else {
+                        System.out.println("Invalid selection.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input.");
+                }
+                break;
+            case 4:
+                printPapers(new PaperByCitationComparator());
+                break;
+            case 0:
+                System.out.println("Goodbye, " + getFirstName() + "!");
+                break;
+            default:
+                System.out.println("Invalid option.");
+        }
     }
+}
 
     @Override
     public String toString() {

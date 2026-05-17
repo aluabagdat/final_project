@@ -1,6 +1,8 @@
 package models;
 
 import java.io.Serializable;
+import java.util.Scanner;
+import java.util.List;
 
 public abstract class User implements Serializable {
     private String id;
@@ -24,7 +26,9 @@ public abstract class User implements Serializable {
     public String getLastName() { return lastName; }
     public String getEmail() { return email; }
     public String getLogin() { return login; }
-    public String getPassword() { return password; }
+    public boolean checkPassword(String inputPassword) {
+        return this.password.equals(inputPassword);
+    }
 
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }

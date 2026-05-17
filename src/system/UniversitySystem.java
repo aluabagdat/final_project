@@ -1,7 +1,12 @@
+package system;
+
 import models.*;
 import java.util.*;
+import java.io.Serializable;
 
-public class UniversitySystem {
+public class UniversitySystem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static UniversitySystem instance;
 
@@ -24,15 +29,33 @@ public class UniversitySystem {
         return instance;
     }
 
-    public List<User> getUsers() { return users; }
-    public List<Course> getCourses() { return courses; }
-    public List<Student> getStudents() { return students; }
-    public List<Teacher> getTeachers() { return teachers; }
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public List<Teacher> getTeachers() {
+        return teachers;
+    }
 
     public void addUser(User user) {
         users.add(user);
-        if (user instanceof Student) students.add((Student) user);
-        if (user instanceof Teacher) teachers.add((Teacher) user);
+
+        if (user instanceof Student) {
+            students.add((Student) user);
+        }
+
+        if (user instanceof Teacher) {
+            teachers.add((Teacher) user);
+        }
+
         System.out.println("User added: " + user);
     }
 
@@ -41,14 +64,14 @@ public class UniversitySystem {
         System.out.println("Course added: " + course);
     }
 
-    // Найти пользователя по логину и паролю
     public User login(String login, String password) {
         for (User u : users) {
-            if (u.getLogin().equals(login) && u.getPassword().equals(password)) {
+            if (u.getLogin().equals(login) && u.checkPassword(password)) {
                 System.out.println("Welcome, " + u.getFirstName() + "!");
                 return u;
             }
         }
+
         System.out.println("Invalid login or password.");
         return null;
     }
