@@ -10,6 +10,7 @@ public abstract class User implements Serializable {
     private String email;
     private String password;
     private String login;
+    private String language;
 
     public User(String id, String firstName, String lastName, String email, String login, String password) {
         this.id = id;
@@ -18,6 +19,7 @@ public abstract class User implements Serializable {
         this.email = email;
         this.login = login;
         this.password = password;
+        this.language = "English";
     }
 
     public String getId() { return id; }
@@ -25,12 +27,43 @@ public abstract class User implements Serializable {
     public String getLastName() { return lastName; }
     public String getEmail() { return email; }
     public String getLogin() { return login; }
+    public String getLanguage() { return language; }
+    
     public boolean checkPassword(String inputPassword) {
         return this.password.equals(inputPassword);
     }
 
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }
+    public void setLanguage(String language) { this.language = language; }
+
+    public void logout() {
+        System.out.println(getFirstName() + " " + getLastName() + " logged out.");
+    }
+    
+    public void viewProfile() {
+        System.out.println("ID: " + id);
+        System.out.println("Name: " + firstName + " " + lastName);
+        System.out.println("Email: " + email);
+        System.out.println("Login: " + login);
+        System.out.println("Language: " + language);
+    }
+    
+    public void updateProfile(String firstName, String lastName, String email) {
+        if (firstName != null) this.firstName = firstName;
+        if (lastName != null) this.lastName = lastName;
+        if (email != null) this.email = email;
+        System.out.println("Profile updated.");
+    }
+    
+    public void changePassword(String oldPassword, String newPassword) {
+        if (checkPassword(oldPassword)) {
+            this.password = newPassword;
+            System.out.println("Password changed.");
+        } else {
+            System.out.println("Incorrect old password.");
+        }
+    }
 
     public abstract void displayMenu();
 
