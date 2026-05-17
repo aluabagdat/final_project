@@ -21,15 +21,19 @@ public class ResearchProject implements Serializable {
     public List<ResearchPaper> getPublishedPapers() { return publishedPapers; }
     public List<Researcher> getParticipants() { return participants; }
 
-    public void addParticipant(User u) throws NotAResearcherException {
-        if (!(u instanceof Researcher)) {
-            throw new NotAResearcherException(u.getFirstName() + " is not a Researcher!");
+    public void addParticipant(Researcher researcher) throws NotAResearcherException {
+        if (researcher == null) {
+            throw new IllegalArgumentException("Researcher cannot be null");
         }
-        participants.add((Researcher) u);
-        System.out.println(u.getFirstName() + " added to project: " + topic);
+        participants.add(researcher);
+        User user = (User) researcher;
+        System.out.println(user.getFirstName() + " added to project: " + topic);
     }
 
     public void addPaper(ResearchPaper paper) {
+        if (paper == null) {
+            throw new IllegalArgumentException("Paper cannot be null");
+        }
         publishedPapers.add(paper);
         System.out.println("Paper added: " + paper.getTitle());
     }

@@ -17,19 +17,39 @@ public class Admin extends Employee implements Observer {
     }
 
     public void addUser(User u) {
+        if (u == null) {
+            System.out.println("Cannot add null user");
+            return;
+        }
         UniversitySystem.getInstance().addUser(u);
     }
 
     public void removeUser(User u) {
+        if (u == null) {
+            System.out.println("Cannot remove null user");
+            return;
+        }
         UniversitySystem sys = UniversitySystem.getInstance();
         sys.getUsers().remove(u);
-        if (u instanceof Student) sys.getStudents().remove(u);
-        if (u instanceof Teacher) sys.getTeachers().remove(u);
+        if (u instanceof Student) {
+            sys.getStudents().remove(u);
+            // Remove student from all courses
+            for (Course c : sys.getCourses()) {
+                c.getStudents().remove(u);
+            }
+        }
+        if (u instanceof Teacher) {
+            sys.getTeachers().remove(u);
+        }
         sys.addLog("User removed: " + u.getFirstName() + " " + u.getLastName());
         System.out.println("User removed: " + u);
     }
 
     public void updateUser(User u) {
+        if (u == null) {
+            System.out.println("Cannot update null user");
+            return;
+        }
         UniversitySystem.getInstance().addLog("User updated: " + u.getFirstName() + " " + u.getLastName());
         System.out.println("User updated: " + u);
     }
@@ -42,6 +62,18 @@ public class Admin extends Employee implements Observer {
         }
         for (String log : logs) {
             System.out.println(log);
+        }
+    }
+    
+    @Override
+    public void viewInbox() {
+        System.out.println("=== ADMIN INBOX ===");
+        List<Message> messages = getInbox();  // Using getter, not direct access
+        if (messages.isEmpty()) {
+            System.out.println("  (empty)");
+        }
+        for (Message m : messages) {
+            System.out.println(m);
         }
     }
 
@@ -57,6 +89,7 @@ public class Admin extends Employee implements Observer {
             System.out.println("2. Remove user");
             System.out.println("3. View system logs");
             System.out.println("4. View all courses");
+            System.out.println("5. View inbox");
             System.out.println("0. Exit");
             System.out.print("Choose: ");
 
@@ -78,7 +111,10 @@ public class Admin extends Employee implements Observer {
                     break;
                 case 2:
                     List<User> all = sys.getUsers();
-                    if (all.isEmpty()) { System.out.println("No users."); break; }
+                    if (all.isEmpty()) { 
+                        System.out.println("No users."); 
+                        break; 
+                    }
                     for (int i = 0; i < all.size(); i++) {
                         System.out.println("  " + (i + 1) + ". " + all.get(i));
                     }
@@ -100,6 +136,9 @@ public class Admin extends Employee implements Observer {
                 case 4:
                     sys.getCourses().forEach(c -> System.out.println("  - " + c));
                     break;
+                case 5:
+                    viewInbox();
+                    break;
                 case 0:
                     System.out.println("Goodbye, " + getFirstName() + "!");
                     break;
@@ -107,7 +146,8 @@ public class Admin extends Employee implements Observer {
                     System.out.println("Invalid option.");
             }
         }
-        scanner.close();
+        // DO NOT close scanner - it closes System.in
+        // scanner.close();
     }
 
     @Override

@@ -206,6 +206,7 @@ public class Manager extends Employee implements Observer {
                     System.out.println("Invalid option.");
             }
         }
+    
     }
 
     @Override

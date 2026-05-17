@@ -4,7 +4,7 @@ import java.util.*;
 import exceptions.*;
 import system.UniversitySystem;
 
-public class Student extends User implements Researcher{
+public class Student extends User implements Researcher {
 
     public enum StudyYear { FIRST, SECOND, THIRD, FOURTH }
 
@@ -143,8 +143,11 @@ public class Student extends User implements Researcher{
     @Override
     public void displayMenu() {
         Scanner scanner = new Scanner(System.in);
+        UniversitySystem sys = UniversitySystem.getInstance();
         int choice = -1;
+
         while (choice != 0) {
+    
             System.out.println("\n=== STUDENT MENU ===");
             System.out.println("1. View registered courses");
             System.out.println("2. View transcript");
@@ -163,72 +166,67 @@ public class Student extends User implements Researcher{
                 continue;
             }
 
-            if (choice == 0) {
-                System.out.println("Goodbye.");
-            } else {
-                handleStudentMenuChoice(choice, scanner);
-            }
-        }
-
-    protected void handleStudentMenuChoice(int choice, Scanner scanner) {
-        UniversitySystem sys = UniversitySystem.getInstance();
-        switch (choice) {
-            case 1:
-                if (registeredCourses.isEmpty()) System.out.println("None.");
-                else registeredCourses.forEach(c -> System.out.println("  - " + c));
-                break;
-            case 2:
-                viewTranscript();
-                break;
-            case 3:
-                System.out.print("Teacher name: ");
-                String name = scanner.nextLine();
-                System.out.print("Rating (1-5): ");
-                int rating;
-                try { rating = Integer.parseInt(scanner.nextLine()); }
-                catch (NumberFormatException e) { System.out.println("Invalid rating."); break; }
-                boolean found = false;
-                for (Course c : registeredCourses) {
-                    for (Teacher t : c.getInstructors()) {
-                        if ((t.getFirstName() + " " + t.getLastName()).equalsIgnoreCase(name)) {
-                            rateTeacher(t, rating);
-                            found = true;
+            switch (choice) {
+                case 1:
+                    if (registeredCourses.isEmpty()) System.out.println("None.");
+                    else registeredCourses.forEach(c -> System.out.println("  - " + c));
+                    break;
+                case 2:
+                    viewTranscript();
+                    break;
+                case 3:
+                    System.out.print("Teacher name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Rating (1-5): ");
+                    try {
+                        int rating = Integer.parseInt(scanner.nextLine());
+                        boolean found = false;
+                        for (Course c : registeredCourses) {
+                            for (Teacher t : c.getInstructors()) {
+                                if ((t.getFirstName() + " " + t.getLastName()).equalsIgnoreCase(name)) {
+                                    rateTeacher(t, rating);
+                                    found = true;
+                                }
+                            }
                         }
+                        if (!found) System.out.println("Teacher not found.");
+                    } catch (NumberFormatException e) { System.out.println("Invalid rating."); }
+                    break;
+                case 4:
+                    viewAttendance();
+                    break;
+                case 5:
+                    System.out.println("Available courses:");
+                    List<Course> all = sys.getCourses();
+                    for (int i = 0; i < all.size(); i++) {
+                        System.out.println((i + 1) + ". " + all.get(i));
                     }
-                }
-                if (!found) System.out.println("Teacher not found.");
-                break;
-            case 4:
-                viewAttendance();
-                break;
-            case 5:
-                System.out.println("Available courses:");
-                List<Course> all = sys.getCourses();
-                for (int i = 0; i < all.size(); i++) {
-                    System.out.println((i + 1) + ". " + all.get(i));
-                }
-                break;
-            case 6:
-                System.out.print("Course number: ");
-                try {
-                    int idx = Integer.parseInt(scanner.nextLine()) - 1;
-                    if (idx >= 0 && idx < sys.getCourses().size()) {
-                        try { registerForCourse(sys.getCourses().get(idx)); }
-                        catch (MaxCreditsException e) { System.out.println("Error: " + e.getMessage()); }
-                    } else { System.out.println("Invalid number."); }
-                } catch (NumberFormatException e) { System.out.println("Invalid input."); }
-                break;
-            case 7:
-                printPapers(new PaperByCitationComparator());
-                break;
-            default:
-                System.out.println("Invalid option.");
+                    break;
+                case 6:
+                    System.out.print("Course number: ");
+                    try {
+                        int idx = Integer.parseInt(scanner.nextLine()) - 1;
+                        if (idx >= 0 && idx < sys.getCourses().size()) {
+                            try { registerForCourse(sys.getCourses().get(idx)); }
+                            catch (MaxCreditsException e) { System.out.println("Error: " + e.getMessage()); }
+                        } else { System.out.println("Invalid number."); }
+                    } catch (NumberFormatException e) { System.out.println("Invalid input."); }
+                    break;
+                case 7:
+                    printPapers(new PaperByCitationComparator());
+                    break;
+                case 0:
+                    System.out.println("Goodbye.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+
         }
     }
 
     @Override
     public String toString() {
         return getFirstName() + " " + getLastName() + " [" + year + ", " + major + "]";
-    }
     }
 }

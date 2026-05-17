@@ -1,6 +1,9 @@
 package models;
 
 import exceptions.LowHIndexException;
+import exceptions.MaxCreditsException;
+import system.UniversitySystem;
+import java.util.List;
 import java.util.Scanner;
 
 public class GraduateStudent extends Student {
@@ -16,10 +19,6 @@ public class GraduateStudent extends Student {
 
     public String getThesisTopic() { return thesisTopic; }
 
-    // ✅ FIX #3: Changed threshold from <= 3 to < 3.
-    // Original threw if h-index <= 3 (rejecting h-index of 3),
-    // but Student.assignSupervisorIfFourthYear() throws if h-index < 3 (accepting 3).
-    // Both now consistently require h-index >= 3.
     public void requestSupervisor(Teacher t) throws LowHIndexException {
         if (t.getHIndex() < 3) {
             throw new LowHIndexException(
@@ -31,13 +30,10 @@ public class GraduateStudent extends Student {
             + " (h-index: " + t.getHIndex() + ")");
     }
 
-    // ✅ FIX #2: Original override printed the header and option 8, then called
-    // super.displayMenu() which runs its own full while-loop. Option 8 was printed
-    // AFTER the loop completed and was never reachable during the session.
-    // Replaced with a proper self-contained menu loop that includes the graduate option.
     @Override
     public void displayMenu() {
         Scanner scanner = new Scanner(System.in);
+        UniversitySystem sys = UniversitySystem.getInstance();
         int choice = -1;
 
         while (choice != 0) {
@@ -60,29 +56,77 @@ public class GraduateStudent extends Student {
                 continue;
             }
 
-            if (choice == 8) {
-                // Graduate-specific: request a supervisor by name
-                System.out.print("Enter teacher's full name: ");
-                String name = scanner.nextLine().trim();
-                boolean found = false;
-                for (Course c : getRegisteredCourses()) {
-                    for (Teacher t : c.getInstructors()) {
-                        if ((t.getFirstName() + " " + t.getLastName()).equalsIgnoreCase(name)) {
-                            try {
-                                requestSupervisor(t);
-                            } catch (LowHIndexException e) {
-                                System.out.println("Error: " + e.getMessage());
+            switch (choice) {
+                case 1:
+                    if (getRegisteredCourses().isEmpty()) System.out.println("None.");
+                    else getRegisteredCourses().forEach(c -> System.out.println("  - " + c));
+                    break;
+                case 2:
+                    viewTranscript();
+                    break;
+                case 3:
+                    System.out.print("Teacher name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Rating (1-5): ");
+                    try {
+                        int rating = Integer.parseInt(scanner.nextLine());
+                        boolean found = false;
+                        for (Course c : getRegisteredCourses()) {
+                            for (Teacher t : c.getInstructors()) {
+                                if ((t.getFirstName() + " " + t.getLastName()).equalsIgnoreCase(name)) {
+                                    rateTeacher(t, rating);
+                                    found = true;
+                                }
                             }
-                            found = true;
+                        }
+                        if (!found) System.out.println("Teacher not found.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid rating.");
+                    }
+                    break;
+                case 4:
+                    viewAttendance();
+                    break;
+                case 5:
+                    System.out.println("Available courses:");
+                    List<Course> all = sys.getCourses();
+                    for (int i = 0; i < all.size(); i++) {
+                        System.out.println((i + 1) + ". " + all.get(i));
+                    }
+                    break;
+                case 6:
+                    System.out.print("Course number: ");
+                    try {
+                        int idx = Integer.parseInt(scanner.nextLine()) - 1;
+                        if (idx >= 0 && idx < sys.getCourses().size()) {
+                            try { registerForCourse(sys.getCourses().get(idx)); }
+                            catch (MaxCreditsException e) { System.out.println("Error: " + e.getMessage()); }
+                        } else { System.out.println("Invalid number."); }
+                    } catch (NumberFormatException e) { System.out.println("Invalid input."); }
+                    break;
+                case 7:
+                    printPapers(new PaperByCitationComparator());
+                    break;
+                case 8:
+                    System.out.print("Enter teacher's full name: ");
+                    String tName = scanner.nextLine().trim();
+                    boolean tFound = false;
+                    for (Course c : getRegisteredCourses()) {
+                        for (Teacher t : c.getInstructors()) {
+                            if ((t.getFirstName() + " " + t.getLastName()).equalsIgnoreCase(tName)) {
+                                try { requestSupervisor(t); }
+                                catch (LowHIndexException e) { System.out.println("Error: " + e.getMessage()); }
+                                tFound = true;
+                            }
                         }
                     }
-                }
-                if (!found) System.out.println("Teacher not found in your courses.");
-            } else if (choice == 0) {
-                System.out.println("Goodbye, " + getFirstName() + "!");
-            } else {
-                // Delegate shared options to a helper so we don't duplicate the switch
-                handleStudentMenuChoice(choice, scanner);
+                    if (!tFound) System.out.println("Teacher not found in your courses.");
+                    break;
+                case 0:
+                    System.out.println("Goodbye, " + getFirstName() + "!");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
             }
         }
     }
