@@ -1,6 +1,5 @@
 import models.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class UniversitySystem {
 
@@ -8,10 +7,14 @@ public class UniversitySystem {
 
     private List<User> users;
     private List<Course> courses;
+    private List<Student> students;
+    private List<Teacher> teachers;
 
     private UniversitySystem() {
         users = new ArrayList<>();
         courses = new ArrayList<>();
+        students = new ArrayList<>();
+        teachers = new ArrayList<>();
     }
 
     public static UniversitySystem getInstance() {
@@ -21,21 +24,32 @@ public class UniversitySystem {
         return instance;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public List<Course> getCourses() {
-        return courses;
-    }
+    public List<User> getUsers() { return users; }
+    public List<Course> getCourses() { return courses; }
+    public List<Student> getStudents() { return students; }
+    public List<Teacher> getTeachers() { return teachers; }
 
     public void addUser(User user) {
         users.add(user);
-        System.out.println("User added to system: " + user);
+        if (user instanceof Student) students.add((Student) user);
+        if (user instanceof Teacher) teachers.add((Teacher) user);
+        System.out.println("User added: " + user);
     }
 
     public void addCourse(Course course) {
         courses.add(course);
         System.out.println("Course added: " + course);
+    }
+
+    // Найти пользователя по логину и паролю
+    public User login(String login, String password) {
+        for (User u : users) {
+            if (u.getLogin().equals(login) && u.getPassword().equals(password)) {
+                System.out.println("Welcome, " + u.getFirstName() + "!");
+                return u;
+            }
+        }
+        System.out.println("Invalid login or password.");
+        return null;
     }
 }
