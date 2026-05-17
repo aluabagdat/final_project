@@ -38,6 +38,10 @@ public class Course implements Serializable {
     }
 
     public void addStudent(Student s) {
+        if (students.contains(s)) {
+            System.out.println("Student " + s.getFirstName() + " is already enrolled in " + name);
+            return;
+        }
         students.add(s);
         System.out.println("Student " + s.getFirstName() + " added to " + name);
     }

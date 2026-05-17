@@ -2,6 +2,8 @@ package models;
 
 import system.Observer;
 import system.UniversitySystem;
+import java.util.List;
+import java.util.Scanner;
 
 public class Admin extends Employee implements Observer {
 
@@ -34,18 +36,82 @@ public class Admin extends Employee implements Observer {
 
     public void viewLogs() {
         System.out.println("=== SYSTEM LOGS ===");
-        for (String log : UniversitySystem.getInstance().getSystemLogs()) {
+        List<String> logs = UniversitySystem.getInstance().getSystemLogs();
+        if (logs.isEmpty()) {
+            System.out.println("  (no logs yet)");
+        }
+        for (String log : logs) {
             System.out.println(log);
         }
     }
 
     @Override
     public void displayMenu() {
-        System.out.println("=== ADMIN MENU ===");
-        System.out.println("1. Add user");
-        System.out.println("2. Remove user");
-        System.out.println("3. Update user");
-        System.out.println("4. View logs");
-        System.out.println("0. Exit");
+        Scanner scanner = new Scanner(System.in);
+        UniversitySystem sys = UniversitySystem.getInstance();
+        int choice = -1;
+
+        while (choice != 0) {
+            System.out.println("\n=== ADMIN MENU ===");
+            System.out.println("1. View all users");
+            System.out.println("2. Remove user");
+            System.out.println("3. View system logs");
+            System.out.println("4. View all courses");
+            System.out.println("0. Exit");
+            System.out.print("Choose: ");
+
+            try {
+                choice = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    List<User> users = sys.getUsers();
+                    if (users.isEmpty()) {
+                        System.out.println("No users.");
+                    } else {
+                        users.forEach(u -> System.out.println("  - " + u));
+                    }
+                    break;
+                case 2:
+                    List<User> all = sys.getUsers();
+                    if (all.isEmpty()) { System.out.println("No users."); break; }
+                    for (int i = 0; i < all.size(); i++) {
+                        System.out.println("  " + (i + 1) + ". " + all.get(i));
+                    }
+                    System.out.print("Select user number to remove: ");
+                    try {
+                        int idx = Integer.parseInt(scanner.nextLine().trim()) - 1;
+                        if (idx >= 0 && idx < all.size()) {
+                            removeUser(all.get(idx));
+                        } else {
+                            System.out.println("Invalid selection.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input.");
+                    }
+                    break;
+                case 3:
+                    viewLogs();
+                    break;
+                case 4:
+                    sys.getCourses().forEach(c -> System.out.println("  - " + c));
+                    break;
+                case 0:
+                    System.out.println("Goodbye, " + getFirstName() + "!");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
+        scanner.close();
+    }
+
+    @Override
+    public String toString() {
+        return getFirstName() + " " + getLastName() + " [Admin]";
     }
 }

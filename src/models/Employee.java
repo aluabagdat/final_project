@@ -21,6 +21,7 @@ public abstract class Employee extends User {
 
     public double getSalary() { return salary; }
     public String getDepartment() { return department; }
+    public List<Message> getInbox() { return inbox; }
 
     public void setSalary(double salary) { this.salary = salary; }
     public void setDepartment(String department) { this.department = department; }
@@ -33,22 +34,29 @@ public abstract class Employee extends User {
         System.out.println("Message sent to " + to.getFirstName());
     }
 
-
     public void sendComplaint(String text) {
-        User admin = UniversitySystem.getInstance().getUsers().stream()
-            .filter(u -> u instanceof Admin).findFirst().orElse(null);
+        Admin admin = UniversitySystem.getInstance().getUsers().stream()
+            .filter(u -> u instanceof Admin)
+            .map(u -> (Admin) u)
+            .findFirst()
+            .orElse(null);
+
         if (admin != null) {
             Message complaint = new Message(this, admin, text, true);
             outbox.add(complaint);
-            ((Employee)admin).inbox.add(complaint);
+            admin.getInbox().add(complaint);
             UniversitySystem.getInstance().addLog("Complaint from " + getFirstName());
             System.out.println("Complaint sent to admin.");
         } else {
             System.out.println("No admin found to send complaint.");
         }
     }
+
     public void viewInbox() {
         System.out.println("=== INBOX ===");
+        if (inbox.isEmpty()) {
+            System.out.println("  (empty)");
+        }
         for (Message m : inbox) {
             System.out.println(m);
         }

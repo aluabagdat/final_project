@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Mark implements Serializable {
 
-    private double firstAttestation; 
+    private double firstAttestation;
     private double secondAttestation;
-    private double finalExam; 
+    private double finalExam;
 
     public Mark(double firstAttestation, double secondAttestation, double finalExam) {
         setFirstAttestation(firstAttestation);
@@ -14,36 +14,25 @@ public class Mark implements Serializable {
         setFinalExam(finalExam);
     }
 
-    public double getFirstAttestation() { 
-        return firstAttestation; 
-    }
-
-    public double getSecondAttestation() { 
-        return secondAttestation; 
-    }
-
-    public double getFinalExam() { 
-        return finalExam; 
-    }
+    public double getFirstAttestation() { return firstAttestation; }
+    public double getSecondAttestation() { return secondAttestation; }
+    public double getFinalExam() { return finalExam; }
 
     public void setFirstAttestation(double firstAttestation) {
-        if (firstAttestation < 0 || firstAttestation > 30) {
+        if (firstAttestation < 0 || firstAttestation > 30)
             throw new IllegalArgumentException("First attestation must be between 0 and 30");
-        }
         this.firstAttestation = firstAttestation;
     }
 
     public void setSecondAttestation(double secondAttestation) {
-        if (secondAttestation < 0 || secondAttestation > 30) {
+        if (secondAttestation < 0 || secondAttestation > 30)
             throw new IllegalArgumentException("Second attestation must be between 0 and 30");
-        }
         this.secondAttestation = secondAttestation;
     }
 
     public void setFinalExam(double finalExam) {
-        if (finalExam < 0 || finalExam > 40) {
+        if (finalExam < 0 || finalExam > 40)
             throw new IllegalArgumentException("Final exam must be between 0 and 40");
-        }
         this.finalExam = finalExam;
     }
 
@@ -53,11 +42,11 @@ public class Mark implements Serializable {
 
     public String getGrade() {
         double total = getTotal();
-
         if (total >= 90) return "A";
         else if (total >= 80) return "B";
         else if (total >= 70) return "C";
         else if (total >= 60) return "D";
+        else if (total >= 50) return "E";
         else return "F";
     }
 
