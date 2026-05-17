@@ -5,6 +5,7 @@ import models.Teacher.TeacherTitle;
 import exceptions.*;
 
 import system.UniversitySystem;
+import system.UserFactory;
 import system.DataManager;
 
 import java.time.LocalDate;
@@ -21,31 +22,32 @@ public class Main {
         UniversitySystem sys = UniversitySystem.getInstance();
 
         System.out.println("--- Creating users ---");
-        Admin admin = new Admin("A01", "Alua", "Bagdat",
+        Admin admin = (Admin) UserFactory.createAdmin("A01", "Alua", "Bagdat",
             "alua@kbtu.kz", "alua", "1234");
+        sys.addUser(admin);
+        sys.getEventBus().addObserver(admin);   // Admin подписан на события
 
-        Teacher teacher = new Teacher("T01", "Assem", "Mukhtarkyzy",
+        Teacher teacher = (Teacher) UserFactory.createTeacher("T01", "Assem", "Mukhtarkyzy",
             "assem@kbtu.kz", "assem", "1234", TeacherTitle.PROFESSOR);
 
-        Teacher teacher2 = new Teacher("T02", "Dauren", "Seitkali",
+        Teacher teacher2 = (Teacher) UserFactory.createTeacher("T02", "Dauren", "Seitkali",
             "dauren@kbtu.kz", "dauren", "1234", TeacherTitle.SENIOR_LECTOR);
 
-        Student student1 = new Student("S01", "Valeriya", "Demchenko",
+        Student student1 = (Student) UserFactory.createStudent("24B01", "Valeriya", "Demchenko",
             "val@kbtu.kz", "val", "1234", StudyYear.SECOND, "IS");
 
-        Student student2 = new Student("S02", "Aizat", "Nurlanovna",
+        Student student2 = (Student) UserFactory.createStudent("25B02", "Aizat", "Nurlanovna",
             "aizat@kbtu.kz", "aizat", "1234", StudyYear.FIRST, "CS");
 
-        Student student3 = new Student("S03", "Alibek", "Dzhaksybekov",
+        Student student3 = (Student) UserFactory.createStudent("23B03", "Alibek", "Dzhaksybekov",
             "alibek@kbtu.kz", "alibek", "1234", StudyYear.THIRD, "IS");
 
-        GraduateStudent grad = new GraduateStudent("G01", "Nurbol", "Akhmetov",
+        GraduateStudent grad = (GraduateStudent) UserFactory.createGraduateStudent("G01", "Nurbol", "Akhmetov",
             "nurbol@kbtu.kz", "nurbol", "1234", "CS", "AI in Education");
 
-        Manager manager = new Manager("M01", "Arsen", "Akhmetolla",
+        Manager manager = (Manager) UserFactory.createManager("M01", "Arsen", "Akhmetolla",
             "arsen@kbtu.kz", "arsen", "1234", ManagerType.OR);
 
-        sys.addUser(admin);
         sys.addUser(teacher);
         sys.addUser(teacher2);
         sys.addUser(student1);
@@ -225,6 +227,25 @@ public class Main {
 
         System.out.println("\n--- Saving data ---");
         DataManager.save(sys);
+        
+        System.out.println("\n=== NEW FEATURES DEMO ===");
+        sys.printAllResearchersPapers(new PaperByCitationComparator());
+        
+        Researcher top = sys.getTopCitedResearcher();
+        if (top != null) {
+            System.out.println("Top cited researcher: " + ((User)top).getFirstName());
+        }
+        
+        Student fourthYear = (Student) UserFactory.createStudent("S99", "Test", "Fourth", "test@kbtu.kz", "test", "1234", StudyYear.FOURTH, "CS");
+        try {
+            fourthYear.assignSupervisorIfFourthYear(teacher2); // teacher2 не имеет публикаций → h-index=0 → исключение
+        } catch (LowHIndexException e) {
+            System.out.println("Supervisor assignment failed: " + e.getMessage());
+        }
+        
+        teacher.sendMessage(manager, "Hello, please assign more courses");
+        manager.generateDetailedPerformanceReport();
+        
         System.out.println("\n=== Demo complete ===");
     }
 }

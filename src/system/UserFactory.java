@@ -1,34 +1,34 @@
 package system;
 
 import models.*;
-import models.Manager.ManagerType;
 import models.Student.StudyYear;
 import models.Teacher.TeacherTitle;
+import models.Manager.ManagerType;
 
 public class UserFactory {
 
-    public static User createUser(String type, String id, String firstName, String lastName,
-                                  String email, String login, String password) {
+    public static User createStudent(String id, String firstName, String lastName, String email,
+                                     String login, String password, StudyYear year, String major) {
+        return new Student(id, firstName, lastName, email, login, password, year, major);
+    }
 
-        switch (type.toLowerCase()) {
+    public static User createGraduateStudent(String id, String firstName, String lastName, String email,
+                                             String login, String password, String major, String thesisTopic) {
+        return new GraduateStudent(id, firstName, lastName, email, login, password, major, thesisTopic);
+    }
 
-            case "student":
-                return new Student(id, firstName, lastName, email, login, password,
-                        Student.StudyYear.FIRST, "CS");
+    public static User createTeacher(String id, String firstName, String lastName, String email,
+                                     String login, String password, TeacherTitle title) {
+        return new Teacher(id, firstName, lastName, email, login, password, title);
+    }
 
-            case "teacher":
-                return new Teacher(id, firstName, lastName, email, login, password,
-                        Teacher.TeacherTitle.PROFESSOR);
+    public static User createAdmin(String id, String firstName, String lastName, String email,
+                                   String login, String password) {
+        return new Admin(id, firstName, lastName, email, login, password);
+    }
 
-            case "admin":
-                return new Admin(id, firstName, lastName, email, login, password);
-
-            case "manager":
-                return new Manager(id, firstName, lastName, email, login, password,
-                        Manager.ManagerType.OR);
-
-            default:
-                throw new IllegalArgumentException("Unknown user type: " + type);
-        }
+    public static User createManager(String id, String firstName, String lastName, String email,
+                                     String login, String password, ManagerType type) {
+        return new Manager(id, firstName, lastName, email, login, password, type);
     }
 }

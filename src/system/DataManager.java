@@ -17,12 +17,15 @@ public class DataManager {
         }
     }
 
-    public static UniversitySystem load() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-            return (UniversitySystem) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No saved data found, creating new system");
-            return UniversitySystem.getInstance();
-        }
+        public static UniversitySystem load() {
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+                UniversitySystem sys = (UniversitySystem) in.readObject();
+                UniversitySystem.setInstance(sys);
+                System.out.println("Data loaded successfully");
+                return sys;
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("No saved data found, creating new system");
+                return UniversitySystem.getInstance();
+            }
     }
 }

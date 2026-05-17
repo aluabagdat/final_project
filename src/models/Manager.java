@@ -3,10 +3,10 @@ package models;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
-import java.util.Scanner;
-import java.util.List;
+import system.Observer;
 import system.UniversitySystem;
-public class Manager extends Employee {
+
+public class Manager extends Employee implements Observer {
 
     public enum ManagerType { OR, DEPARTMENT, DEAN_OFFICE }
 
@@ -24,6 +24,9 @@ public class Manager extends Employee {
     public void approveRegistration(Student s, Course c) {
         System.out.println("Approved " + s.getFirstName() + " for " + c.getName());
         c.addStudent(s);
+        UniversitySystem.getInstance().getEventBus().notifyObservers(
+            "Registration approved: " + s.getFirstName() + " " + s.getLastName() + " -> " + c.getName()
+        );
     }
 
     public void assignTeacher(Teacher t, Course c) {
@@ -32,7 +35,6 @@ public class Manager extends Employee {
         System.out.println("Assigned " + t.getFirstName() + " to " + c.getName());
     }
 
-    // БОНУС: генерация отчёта по всем курсам
     public void createReport(List<Course> courses) {
         System.out.println("=== UNIVERSITY REPORT ===");
         System.out.printf("%-20s %8s %8s%n", "Course", "Students", "Credits");
@@ -58,7 +60,6 @@ public class Manager extends Employee {
         }
     }
 
-    // БОНУС: поиск студентов по регулярному выражению
     public List<Student> searchStudents(List<Student> students, String regex) {
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         List<Student> result = students.stream()
@@ -75,7 +76,6 @@ public class Manager extends Employee {
         return result;
     }
 
-    // БОНУС: поиск преподавателей по regex
     public List<Teacher> searchTeachers(List<Teacher> teachers, String regex) {
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         List<Teacher> result = teachers.stream()
@@ -88,7 +88,6 @@ public class Manager extends Employee {
         return result;
     }
 
-    // БОНУС: просмотр расписания курса
     public void viewSchedule(Course c) {
         System.out.println("=== SCHEDULE: " + c.getName() + " ===");
         List<Lesson> lessons = c.getLessons();
@@ -99,6 +98,29 @@ public class Manager extends Employee {
         lessons.sort(Comparator.comparing(Lesson::getDateTime));
         for (Lesson l : lessons) {
             System.out.println("  " + l);
+        }
+    }
+
+    // Детальный отчёт по успеваемости
+    public void generateDetailedPerformanceReport() {
+        System.out.println("=== DETAILED ACADEMIC REPORT ===");
+        UniversitySystem sys = UniversitySystem.getInstance();
+        List<Course> courses = sys.getCourses();
+        for (Course c : courses) {
+            System.out.println("\nCourse: " + c.getName());
+            double total = 0;
+            int count = 0;
+            for (Student s : c.getStudents()) {
+                List<Mark> marks = s.getMarks();
+                if (!marks.isEmpty()) {
+                    Mark last = marks.get(marks.size() - 1);
+                    total += last.getTotal();
+                    count++;
+                }
+            }
+            double avg = count == 0 ? 0 : total / count;
+            System.out.printf("  Average grade: %.2f%n", avg);
+            System.out.println("  Students enrolled: " + c.getStudents().size());
         }
     }
 
@@ -116,6 +138,7 @@ public class Manager extends Employee {
             System.out.println("4. Search students");
             System.out.println("5. View schedule");
             System.out.println("6. Manage news");
+            System.out.println("7. Detailed performance report");
             System.out.println("0. Exit");
             System.out.print("Choose: ");
 
@@ -173,6 +196,9 @@ public class Manager extends Employee {
                     String news = scanner.nextLine().trim();
                     manageNews(news);
                     break;
+                case 7:
+                    generateDetailedPerformanceReport();
+                    break;
                 case 0:
                     System.out.println("Goodbye, " + getFirstName() + "!");
                     break;
@@ -180,6 +206,11 @@ public class Manager extends Employee {
                     System.out.println("Invalid option.");
             }
         }
+    }
+
+    @Override
+    public void update(String message) {
+        System.out.println("[MANAGER NOTIFICATION] " + message);
     }
 
     @Override
