@@ -11,7 +11,7 @@ public class Teacher extends Employee implements Researcher {
 
     private TeacherTitle title;
     private List<Course> courses;
-    private List<Integer> ratings;   // список всех оценок от студентов
+    private List<Integer> ratings; 
     private List<ResearchPaper> papers;
     private List<ResearchProject> projects;
 
@@ -62,7 +62,6 @@ public class Teacher extends Employee implements Researcher {
         }
     }
 
-    // БОНУС: отчёт по оценкам для преподавателя
     public void generateMarksReport(Course c) {
         System.out.println("=== MARKS REPORT: " + c.getName() + " ===");
         System.out.printf("%-22s %6s %6s %6s %6s %5s%n",
@@ -81,7 +80,7 @@ public class Teacher extends Employee implements Researcher {
             if (marks.isEmpty()) {
                 System.out.printf("%-22s %s%n", s.getFirstName() + " " + s.getLastName(), "No marks yet");
             } else {
-                Mark m = marks.get(marks.size() - 1); // последняя оценка
+                Mark m = marks.get(marks.size() - 1);
                 classTotal += m.getTotal();
                 System.out.printf("%-22s %6.1f %6.1f %6.1f %6.1f %5s%n",
                     s.getFirstName() + " " + s.getLastName(),
@@ -93,14 +92,12 @@ public class Teacher extends Employee implements Researcher {
         System.out.printf("Class average: %.2f%n", classTotal / students.size());
     }
 
-    // БОНУС: отметить посещаемость на уроке
     public void markAttendance(Course c, Student s, boolean present) {
         s.markAttendance(c, present);
         System.out.println(s.getFirstName() + " marked as "
             + (present ? "PRESENT" : "ABSENT") + " in " + c.getName());
     }
 
-    // БОНУС: создать урок
     public Lesson createLesson(Lesson.LessonType type, Course c, LocalDateTime dt) {
         Lesson lesson = new Lesson(type, this, c, dt);
         c.addLesson(lesson);

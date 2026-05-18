@@ -101,7 +101,6 @@ public class Manager extends Employee implements Observer {
         }
     }
 
-    // Детальный отчёт по успеваемости
     public void generateDetailedPerformanceReport() {
         System.out.println("=== DETAILED ACADEMIC REPORT ===");
         UniversitySystem sys = UniversitySystem.getInstance();

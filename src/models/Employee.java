@@ -23,11 +23,11 @@ public abstract class Employee extends User {
     public String getDepartment() { return department; }
     
     public List<Message> getInbox() {
-        return new ArrayList<>(inbox);  // defensive copy
+        return new ArrayList<>(inbox);
     }
     
     public List<Message> getOutbox() {
-        return new ArrayList<>(outbox);  // defensive copy
+        return new ArrayList<>(outbox);
     }
 
     public void setSalary(double salary) { this.salary = salary; }

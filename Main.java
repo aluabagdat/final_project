@@ -10,7 +10,6 @@ import system.DataManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class Main {
 
@@ -19,13 +18,13 @@ public class Main {
         System.out.println("       UNIVERSITY MANAGEMENT SYSTEM     ");
         System.out.println("========================================\n");
 
-        UniversitySystem sys = UniversitySystem.getInstance();
+        UniversitySystem sys = DataManager.load();
 
         System.out.println("--- Creating users ---");
         Admin admin = (Admin) UserFactory.createAdmin("A01", "Alua", "Bagdat",
             "alua@kbtu.kz", "alua", "1234");
         sys.addUser(admin);
-        sys.getEventBus().addObserver(admin);   // Admin подписан на события
+        sys.getEventBus().addObserver(admin);
 
         Teacher teacher = (Teacher) UserFactory.createTeacher("T01", "Assem", "Mukhtarkyzy",
             "assem@kbtu.kz", "assem", "1234", TeacherTitle.PROFESSOR);
@@ -87,7 +86,7 @@ public class Main {
             Course extra1 = new Course("Extra1", "IS", 2, 6);
             Course extra2 = new Course("Extra2", "IS", 2, 6);
             student2.registerForCourse(extra1);
-            student2.registerForCourse(extra2); // должно упасть
+            student2.registerForCourse(extra2); // exception
         } catch (MaxCreditsException e) {
             System.out.println("Caught: " + e.getMessage());
         }
@@ -113,10 +112,11 @@ public class Main {
         try {
             student2.addMark(failMark);
             student2.addMark(new Mark(5, 5, 10));
-            student2.addMark(new Mark(8, 8, 12)); // 3-й провал — бросает исключение
+            student2.addMark(new Mark(8, 8, 12)); //testing exception
         } catch (MaxFailException e) {
             System.out.println("Caught: " + e.getMessage());
         }
+
 
         System.out.println("\n--- Transcripts ---");
         student1.viewTranscript();
@@ -131,10 +131,10 @@ public class Main {
         teacher.markAttendance(oop, student2, true);
         student1.viewAttendance();
 
-        System.out.println("\n--- Marks Report (BONUS) ---");
+        System.out.println("\n--- Marks Report  ---");
         teacher.generateMarksReport(oop);
 
-        System.out.println("\n--- Schedule (BONUS) ---");
+        System.out.println("\n--- Schedule ---");
         teacher.createLesson(Lesson.LessonType.LECTURE, oop,
             LocalDateTime.of(2026, 5, 20, 9, 0));
         teacher.createLesson(Lesson.LessonType.PRACTICE, oop,
@@ -143,9 +143,9 @@ public class Main {
             LocalDateTime.of(2026, 5, 19, 14, 0));
         manager.viewSchedule(oop);
 
-        System.out.println("\n--- Regex Search (BONUS) ---");
-        manager.searchStudents(sys.getStudents(), "^A");     // имя начинается с A
-        manager.searchStudents(sys.getStudents(), "enko$");  // фамилия на -enko
+        System.out.println("\n--- Regex Search ---");
+        manager.searchStudents(sys.getStudents(), "^A");     // names starting with a
+        manager.searchStudents(sys.getStudents(), "enko$");  // surnames ending with enko
         manager.searchTeachers(sys.getTeachers(), "assem");
 
         System.out.println("\n--- Students by GPA ---");
@@ -177,8 +177,15 @@ public class Main {
         teacher.addPaper(paper1);
         teacher.addPaper(paper2);
         teacher.addPaper(paper3);
+        
+        ResearchPaper gradPaper = new ResearchPaper(
+            "AI Tutoring Systems", "Elsevier", LocalDate.of(2025, 2, 15), 15, "10.4/grad");
+        gradPaper.addAuthor("Nurbol Akhmetov");
+        gradPaper.setCitations(7);
+        grad.addPaper(gradPaper);
 
         System.out.println("Teacher H-index: " + teacher.getHIndex());
+        System.out.println("Graduate Student H-index: " + grad.getHIndex());
 
         System.out.println("\nPapers by citations:");
         teacher.printPapers(new PaperByCitationComparator());
@@ -193,7 +200,10 @@ public class Main {
         try {
             project.addParticipant(teacher);
             project.addParticipant(grad);
-            project.addParticipant(student1); // должно упасть
+
+            System.out.println("Note: Students implement Researcher, so they can join projects");
+            project.addParticipant(student1); //не работает
+            System.out.println("Student successfully added to project (Student implements Researcher)");
         } catch (NotAResearcherException e) {
             System.out.println("Caught: " + e.getMessage());
         }
@@ -202,7 +212,15 @@ public class Main {
 
         System.out.println("\n--- Graduate student supervisor (BONUS) ---");
         try {
-            grad.requestSupervisor(teacher);  // h-index = 3, должно упасть
+            grad.requestSupervisor(teacher);  // h-index = 9
+            System.out.println("Successfully assigned supervisor!");
+        } catch (LowHIndexException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+        
+        System.out.println("\n--- Testing LowHIndexException ---");
+        try {
+            grad.requestSupervisor(teacher2);  // h-index = 0, проверка exception
         } catch (LowHIndexException e) {
             System.out.println("Caught: " + e.getMessage());
         }
@@ -210,42 +228,74 @@ public class Main {
         System.out.println("\n--- University Report ---");
         manager.createReport(sys.getCourses());
 
+        System.out.println("\n--- Detailed Performance Report ---");
+        manager.generateDetailedPerformanceReport();
+
+        System.out.println("\n--- Messaging System ---");
+        teacher.sendMessage(manager, "Hello, please assign more courses to me");
+        manager.sendMessage(teacher, "I'll consider your request");
+        teacher.sendComplaint("I need more resources for my courses");
+        
+        System.out.println("\n--- View Messages ---");
+        teacher.viewInbox();
+        teacher.viewOutbox();
+        manager.viewInbox();
+
         System.out.println("\n--- Login test ---");
-        sys.login("val", "1234");
+        User loggedIn = sys.login("val", "1234");
+        if (loggedIn != null) {
+            System.out.println("Successfully logged in as: " + loggedIn.getFirstName());
+        }
         sys.login("hacker", "wrong");
 
-        System.out.println("\n--- Display menus ---");
-        admin.displayMenu();
-        System.out.println();
-        teacher.displayMenu();
-        System.out.println();
-        student1.displayMenu();
-        System.out.println();
-        manager.displayMenu();
-        System.out.println();
-        grad.displayMenu();
+        System.out.println("\n--- System Logs ---");
+        admin.viewLogs();
 
-        System.out.println("\n--- Saving data ---");
-        DataManager.save(sys);
-        
-        System.out.println("\n=== NEW FEATURES DEMO ===");
+        System.out.println("\n--- Print All Researchers Papers ---");
         sys.printAllResearchersPapers(new PaperByCitationComparator());
         
+        System.out.println("\n--- Top Cited Researcher ---");
         Researcher top = sys.getTopCitedResearcher();
         if (top != null) {
-            System.out.println("Top cited researcher: " + ((User)top).getFirstName());
+            System.out.println("Top cited researcher: " + ((User)top).getFirstName() + 
+                " with " + top.getPapers().stream().mapToInt(ResearchPaper::getCitations).sum() + " citations");
         }
         
-        Student fourthYear = (Student) UserFactory.createStudent("S99", "Test", "Fourth", "test@kbtu.kz", "test", "1234", StudyYear.FOURTH, "CS");
+        System.out.println("\n--- Top Cited Researcher by Year (2024) ---");
+        Researcher top2024 = sys.getTopCitedResearcherByYear(2024);
+        if (top2024 != null) {
+            System.out.println("Top cited researcher in 2024: " + ((User)top2024).getFirstName());
+        }
+        
+        System.out.println("\n--- Fourth Year Student Supervisor Assignment ---");
+        Student fourthYear = (Student) UserFactory.createStudent("S99", "Test", "Fourth", 
+            "test@kbtu.kz", "test", "1234", StudyYear.FOURTH, "CS");
+        sys.addUser(fourthYear);
         try {
-            fourthYear.assignSupervisorIfFourthYear(teacher2); // teacher2 не имеет публикаций → h-index=0 → исключение
+            fourthYear.assignSupervisorIfFourthYear(teacher2); // exception 
         } catch (LowHIndexException e) {
             System.out.println("Supervisor assignment failed: " + e.getMessage());
         }
         
-        teacher.sendMessage(manager, "Hello, please assign more courses");
-        manager.generateDetailedPerformanceReport();
+        try {
+            fourthYear.assignSupervisorIfFourthYear(teacher); //  h-index=9
+            System.out.println("Successfully assigned supervisor to fourth year student!");
+        } catch (LowHIndexException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        System.out.println("\n=== DEMO COMPLETE ===");
+        System.out.println("\n--- Saving data ---");
+        DataManager.save(sys);
         
-        System.out.println("\n=== Demo complete ===");
+        System.out.println("\n--- Interactive menus ---");
+        System.out.println("To interact with the system, uncomment the menu calls below:");
+        System.out.println("// admin.displayMenu();");
+        System.out.println("// teacher.displayMenu();");
+        System.out.println("// student1.displayMenu();");
+        System.out.println("// manager.displayMenu();");
+        System.out.println("// grad.displayMenu();");
+        
+        System.out.println("\nSystem ready for use!");
     }
 }

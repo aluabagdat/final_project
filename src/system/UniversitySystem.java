@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class UniversitySystem implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static UniversitySystem instance;
+    private static volatile UniversitySystem instance;
 
     private List<User> users;
     private List<Course> courses;
@@ -28,7 +28,13 @@ public class UniversitySystem implements Serializable {
     }
 
     public static UniversitySystem getInstance() {
-        if (instance == null) instance = new UniversitySystem();
+        if (instance == null) {
+            synchronized (UniversitySystem.class) {
+                if (instance == null) {
+                    instance = new UniversitySystem();
+                }
+            }
+        }
         return instance;
     }
 
@@ -82,7 +88,6 @@ public class UniversitySystem implements Serializable {
         return null;
     }
 
-    // === NEW RESEARCH METHODS ===
     public void printAllResearchersPapers(Comparator<ResearchPaper> comparator) {
         List<Researcher> allResearchers = new ArrayList<>();
         for (User u : users) if (u instanceof Researcher) allResearchers.add((Researcher) u);

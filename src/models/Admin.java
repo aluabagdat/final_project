@@ -68,7 +68,7 @@ public class Admin extends Employee implements Observer {
     @Override
     public void viewInbox() {
         System.out.println("=== ADMIN INBOX ===");
-        List<Message> messages = getInbox();  // Using getter, not direct access
+        List<Message> messages = getInbox();
         if (messages.isEmpty()) {
             System.out.println("  (empty)");
         }
@@ -146,8 +146,6 @@ public class Admin extends Employee implements Observer {
                     System.out.println("Invalid option.");
             }
         }
-        // DO NOT close scanner - it closes System.in
-        // scanner.close();
     }
 
     @Override
